@@ -1,0 +1,7 @@
+[workspace]
+resolver = "2"
+members = [
+    "gcontinuity-daemon",
+    "gcontinuity-gtk",
+    "gcontinuity-common",
+]

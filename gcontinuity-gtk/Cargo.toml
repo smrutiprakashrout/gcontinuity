@@ -1,0 +1,30 @@
+[package]
+name = "gcontinuity-gtk"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "gcontinuity-settings"
+path = "src/main.rs"
+
+[dependencies]
+gcontinuity-common = { path = "../gcontinuity-common" }
+
+# GTK4 + Libadwaita
+gtk4     = { version = "0.9", features = ["v4_12"] }
+adw      = { version = "0.7", package = "libadwaita", features = ["v1_5"] }
+glib     = { version = "0.20", package = "glib" }
+
+# D-Bus (to talk to daemon)
+zbus = { version = "4", features = ["tokio"] }
+
+# Async
+tokio = { version = "1", features = ["full"] }
+
+# Shared types
+serde      = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+anyhow  = "1"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }

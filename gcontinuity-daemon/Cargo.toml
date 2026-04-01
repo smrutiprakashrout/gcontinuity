@@ -1,0 +1,52 @@
+[package]
+name = "gcontinuity-daemon"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "gcontinuity-daemon"
+path = "src/main.rs"
+
+[dependencies]
+gcontinuity-common = { path = "../gcontinuity-common" }
+
+# Async runtime
+tokio = { version = "1", features = ["full"] }
+
+# WebSocket + TLS
+tokio-tungstenite = { version = "0.23", features = ["rustls-tls-native-roots"] }
+rustls            = { version = "0.23", features = ["std", "ring"] }
+rustls-pemfile    = "2"
+tokio-rustls      = "0.26"
+futures-util      = "0.3"
+
+# TLS cert generation
+rcgen  = { version = "0.13", default-features = false, features = ["pem", "ring"] }
+sha2   = "0.10"
+hex    = "0.4"
+
+# mDNS
+zeroconf = "0.15"
+
+# D-Bus
+zbus = { version = "4", features = ["tokio"] }
+
+# Embedded DB
+sled = "0.34"
+
+# Config
+toml        = "0.8"
+dirs        = "5"
+
+# Serialization
+serde      = { version = "1", features = ["derive"] }
+serde_json = "1"
+uuid       = { version = "1", features = ["v4", "serde"] }
+
+# Error handling
+thiserror = "1"
+anyhow    = "1"
+
+# Logging
+tracing            = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }

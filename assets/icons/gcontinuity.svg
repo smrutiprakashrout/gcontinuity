@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Background circle -->
+  <circle cx="32" cy="32" r="30" fill="#007AFF" />
+  <!-- Link chain icon (two circles connected) -->
+  <circle cx="20" cy="32" r="9" fill="none" stroke="white" stroke-width="4"/>
+  <circle cx="44" cy="32" r="9" fill="none" stroke="white" stroke-width="4"/>
+  <!-- Connecting bar -->
+  <rect x="25" y="29" width="14" height="6" fill="white" rx="3"/>
+  <!-- Signal waves top-right -->
+  <path d="M47 16 Q54 22 54 32" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+  <path d="M50 12 Q60 20 60 32" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity="0.4"/>
+</svg>

@@ -1,0 +1,5 @@
+[alias]
+daemon = "run -p gcontinuity-daemon"
+ui     = "run -p gcontinuity-gtk"
+lint   = "clippy --workspace --all-targets"
+t      = "test --workspace"

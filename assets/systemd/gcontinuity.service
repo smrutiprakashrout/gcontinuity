@@ -1,0 +1,23 @@
+[Unit]
+Description=GContinuity Device Link Daemon
+Documentation=https://github.com/yourusername/gcontinuity
+After=network.target
+After=avahi-daemon.service
+Wants=avahi-daemon.service
+
+[Service]
+Type=simple
+ExecStart=%h/.local/bin/gcontinuity-daemon
+Restart=on-failure
+RestartSec=5s
+RestartSteps=5
+RestartMaxDelaySec=30s
+Environment=RUST_LOG=info
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=gcontinuity
+
+[Install]
+WantedBy=default.target
