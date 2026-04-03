@@ -47,13 +47,14 @@ impl WsServer {
             let tls_acceptor_clone = tls_acceptor.clone();
             let store_clone = self.store.clone();
             let dbus_tx_clone = self.dbus_tx.clone();
+            let identity_clone = self.identity.clone();
             
             tokio::spawn(async move {
                 match tls_acceptor_clone.accept(tcp_stream).await {
                     Ok(tls_stream) => {
                         match tokio_tungstenite::accept_async(tls_stream).await {
                             Ok(ws_stream) => {
-                                connection::handle(ws_stream, peer_addr, store_clone, dbus_tx_clone).await;
+                                connection::handle(ws_stream, peer_addr, store_clone, dbus_tx_clone, identity_clone).await;
                             }
                             Err(e) => tracing::error!("WebSocket upgrade failed: {}", e),
                         }

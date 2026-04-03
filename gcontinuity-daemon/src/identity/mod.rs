@@ -9,6 +9,7 @@ pub struct Identity {
     pub key_pem: String,
     pub fingerprint: String,
     pub device_id: String,
+    pub name: String,
 }
 
 fn data_dir() -> PathBuf {
@@ -58,6 +59,7 @@ impl Identity {
                 key_pem,
                 fingerprint,
                 device_id,
+                name: device_name.to_string(),
             });
         }
 
@@ -78,6 +80,7 @@ impl Identity {
             key_pem,
             fingerprint,
             device_id,
+            name: device_name.to_string(),
         })
     }
 

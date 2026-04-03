@@ -20,7 +20,7 @@ impl MdnsService {
 
     pub fn advertise(&self) -> Result<()> {
         let mut service = ZcMdnsService::new(
-            ServiceType::new("_gcontinuity", "_tcp")?,
+            ServiceType::new("gcontinuity", "tcp")?,
             self.port,
         );
         service.set_name(&self.device_name);

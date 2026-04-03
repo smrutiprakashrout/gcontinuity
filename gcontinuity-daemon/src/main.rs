@@ -1,6 +1,7 @@
 use anyhow::Result;
 use std::sync::Arc;
 use tokio::sync::Mutex;
+use tokio_rustls::rustls;
 use tracing_subscriber::EnvFilter;
 
 mod identity;
@@ -23,6 +24,12 @@ use network::{NetworkWatcher, NetworkEvent};
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    // Install the ring crypto provider for rustls before any TLS setup.
+    // Required in rustls 0.23+ — must be called before ServerConfig::builder().
+    rustls::crypto::ring::default_provider()
+        .install_default()
+        .expect("Failed to install ring CryptoProvider");
+
     tracing_subscriber::fmt()
         .with_env_filter(EnvFilter::from_default_env())
         .init();

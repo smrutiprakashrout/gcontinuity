@@ -10,6 +10,7 @@ use futures_util::SinkExt;
 use std::time::Instant;
 use tokio::sync::Mutex;
 use crate::store::PeerStore;
+use crate::identity::Identity;
 
 #[derive(Debug, Clone)]
 pub enum DaemonEvent {
@@ -27,12 +28,26 @@ pub struct PairingSession {
     pub dbus_tx: tokio::sync::mpsc::Sender<DaemonEvent>,
     pub ws_tx: Arc<Mutex<SplitSink<WebSocketStream<TlsStream<TcpStream>>, Message>>>,
     pub last_pong: Arc<Mutex<Instant>>,
+    pub identity: Arc<Identity>,
 }
 
 impl PairingSession {
     pub async fn handle_packet(&mut self, packet: Packet) -> Result<()> {
         match packet {
             Packet::Hello { device_id, name, version, fingerprint } => {
+                {
+                    let hello = Packet::Hello {
+                        device_id: self.identity.device_id.clone(),
+                        name: self.identity.name.clone(),
+                        version: 1u32,
+                        fingerprint: self.identity.fingerprint.clone(),
+                    };
+                    if let Ok(json) = hello.to_json() {
+                        let mut sink = self.ws_tx.lock().await;
+                        let _ = sink.send(Message::Text(json)).await;
+                    }
+                }
+
                 let info = DeviceInfo { device_id: device_id.clone(), name: name.clone(), fingerprint: fingerprint.clone(), version };
                 self.peer_info = Some(info.clone());
                 

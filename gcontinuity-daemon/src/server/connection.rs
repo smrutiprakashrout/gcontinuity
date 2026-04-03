@@ -11,6 +11,7 @@ use std::time::Instant;
 use crate::store::PeerStore;
 use crate::pairing::{DaemonEvent, PairingSession};
 use crate::keepalive::KeepaliveTask;
+use crate::identity::Identity;
 use gcontinuity_common::{Packet, ConnectionState};
 
 pub async fn handle(
@@ -18,6 +19,7 @@ pub async fn handle(
     peer_addr: SocketAddr,
     store: Arc<PeerStore>,
     dbus_tx: broadcast::Sender<DaemonEvent>,
+    identity: Arc<Identity>,
 ) {
     tracing::info!("Connection task started for {}", peer_addr);
 
@@ -42,6 +44,7 @@ pub async fn handle(
         dbus_tx: local_tx,
         ws_tx: ws_tx.clone(),
         last_pong: last_pong.clone(),
+        identity: identity.clone(),
     };
 
     let (disconnect_tx, mut disconnect_rx) = oneshot::channel();
