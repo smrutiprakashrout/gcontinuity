@@ -861,6 +861,8 @@ name = "gcontinuity-gtk"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "async-channel",
+ "futures-util",
  "gcontinuity-common",
  "glib",
  "gtk4",

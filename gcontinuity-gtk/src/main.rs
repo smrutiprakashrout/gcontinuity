@@ -14,12 +14,12 @@ fn main() {
         .application_id("org.gcontinuity.Settings")
         .build();
 
+    // ── Changed: delegate to app::on_activate so the D-Bus listener is wired up
     app.connect_activate(|app| {
-        let win = ui::window::build_window(app);
-        win.present();
+        crate::app::on_activate(app);
     });
 
-    // Load custom CSS
+    // Load custom CSS — unchanged
     app.connect_startup(|_| {
         let provider = gtk4::CssProvider::new();
         provider.load_from_string(
