@@ -1,50 +1,77 @@
 use adw::prelude::*;
 
-/// Build a device row with:
-/// - Colored status dot (prefix)
-/// - Device name + truncated fingerprint
-/// - Unpair button (suffix)
-pub fn build_device_row(name: &str, state: &str, fingerprint: &str) -> adw::ActionRow {
+/// Build a device row — KDE Connect style:
+///
+///  ┌─────────────────────────────────────────────────────┐
+///  │  [phone icon]  Device Name          Connected  [⊗]  │
+///  │                13:79:75:…  ·  Just now               │
+///  └─────────────────────────────────────────────────────┘
+///
+/// Parameters:
+///   name           — device display name
+///   status         — "Connected" | "Disconnected" | "Reconnecting"
+///   fingerprint    — full fingerprint string (will be truncated)
+///   last_connected — human-readable time string e.g. "Just now"
+///   on_click       — called when the row is activated (navigate to mgmt page)
+pub fn build_device_row(
+    name: &str,
+    status: &str,
+    fingerprint: &str,
+    last_connected: &str,
+    on_click: impl Fn() + 'static,
+) -> adw::ActionRow {
+    let fp_short = truncate_fingerprint(fingerprint);
+    let subtitle  = format!("{fp_short}  ·  {last_connected}");
+
     let row = adw::ActionRow::builder()
         .title(name)
-        .subtitle(truncate_fingerprint(fingerprint))
-        .activatable(false)
+        .subtitle(&subtitle)
+        .activatable(true)          // makes the whole row clickable
         .build();
 
-    // Status dot using DrawingArea
-    let dot_color = match state {
-        "connected"    => (0x34_u8, 0xC7_u8, 0x59_u8), // Apple green
-        "reconnecting" => (0xFF_u8, 0x95_u8, 0x00_u8), // Apple amber
-        _              => (0x8E_u8, 0x8E_u8, 0x93_u8), // Apple grey
-    };
-    let (r, g, b) = dot_color;
+    // ── Phone icon (prefix) ───────────────────────────────────────────────
+    row.add_prefix(
+        &gtk4::Image::builder()
+            .icon_name("phone-symbolic")
+            .pixel_size(20)
+            .valign(gtk4::Align::Center)
+            .build(),
+    );
 
-    let dot = gtk4::DrawingArea::builder()
-        .width_request(10)
-        .height_request(10)
+    // ── Status text label (suffix) — KDE Connect style ────────────────────
+    // "Connected"     → Adwaita success colour (green)
+    // "Reconnecting"  → warning colour (amber via .warning css class)
+    // anything else   → dim grey
+    let status_label = gtk4::Label::builder()
+        .label(status)
         .valign(gtk4::Align::Center)
-        .margin_end(4)
         .build();
 
-    dot.set_draw_func(move |_da, cr, w, h| {
-        cr.arc(w as f64 / 2.0, h as f64 / 2.0, w as f64 / 2.0, 0.0, 2.0 * std::f64::consts::PI);
-        cr.set_source_rgb(r as f64 / 255.0, g as f64 / 255.0, b as f64 / 255.0);
-        let _ = cr.fill();
-    });
+    match status {
+        "Connected"    => status_label.add_css_class("success"),
+        "Reconnecting" => status_label.add_css_class("warning"),
+        _              => status_label.add_css_class("dim-label"),
+    }
 
-    row.add_prefix(&dot);
+    row.add_suffix(&status_label);
 
-    // Unpair button
+    // ── Unpair button (suffix) ────────────────────────────────────────────
     let unpair_btn = gtk4::Button::builder()
-        .icon_name("network-wireless-disconnected-symbolic")
-        .tooltip_text("Unpair")
+        .icon_name("user-trash-symbolic")
+        .tooltip_text("Unpair device")
         .valign(gtk4::Align::Center)
         .css_classes(["flat"])
         .build();
+
+    // Prevent the unpair button click from also firing the row's activate.
     unpair_btn.connect_clicked(|_| {
-        // TODO: call D-Bus UnpairDevice
+        // TODO: dbus_unpair_device(device_id.clone());
     });
+
     row.add_suffix(&unpair_btn);
+
+    // ── Row activated → navigate to device management page ────────────────
+    row.connect_activated(move |_| on_click());
 
     row
 }
@@ -52,7 +79,7 @@ pub fn build_device_row(name: &str, state: &str, fingerprint: &str) -> adw::Acti
 fn truncate_fingerprint(fp: &str) -> String {
     let parts: Vec<&str> = fp.split(':').take(3).collect();
     if parts.len() == 3 {
-        format!("{}:...", parts.join(":"))
+        format!("{}:…", parts.join(":"))
     } else {
         fp.to_string()
     }

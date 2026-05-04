@@ -1,6 +1,8 @@
+#![allow(dead_code)] // Phase 1 — reactivated in Phase 3
 use futures_util::SinkExt;
 use std::sync::Arc;
-use std::time::{Duration, Instant, UNIX_EPOCH};
+use std::time::{Duration, Instant};
+// REMOVED: UNIX_EPOCH — no longer needed since Ping has no timestamp_ms
 use tokio::sync::{Mutex, oneshot};
 use tokio::task::JoinHandle;
 use tokio_tungstenite::tungstenite::Message;
@@ -37,10 +39,10 @@ impl KeepaliveTask {
         loop {
             interval.tick().await;
 
-            let timestamp_ms = now_ms();
-            let ping_packet = Packet::Ping { timestamp_ms };
-            
-            if let Ok(json) = ping_packet.to_json() {
+            // FIX 1: Packet::Ping is now a bare unit variant — no timestamp_ms field.
+            // FIX 2: to_json() returns String (infallible), not Result — no `if let Ok`.
+            let json = Packet::Ping.to_json();
+            {
                 let mut sink = self.ws_tx.lock().await;
                 if sink.send(Message::Text(json)).await.is_err() {
                     break;
@@ -52,7 +54,7 @@ impl KeepaliveTask {
 
             let last_pong_val = *self.last_pong.lock().await;
             let now = Instant::now();
-            
+
             if now.duration_since(last_pong_val) > Duration::from_secs(35) {
                 consecutive_misses += 1;
             } else {
@@ -68,9 +70,4 @@ impl KeepaliveTask {
     }
 }
 
-pub fn now_ms() -> u64 {
-    std::time::SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .unwrap()
-        .as_millis() as u64
-}
+// REMOVED: now_ms() — no longer needed since Ping carries no timestamp.

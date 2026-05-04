@@ -1,3 +1,4 @@
+#![allow(dead_code)] // Phase 1 — reactivated in Phase 3
 use anyhow::Result;
 use sha2::{Digest, Sha256};
 use std::path::PathBuf;

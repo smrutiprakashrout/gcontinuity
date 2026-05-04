@@ -1,0 +1,9 @@
+{
+  "name": "GContinuity",
+  "description": "KDE Connect / Apple Continuity for GNOME Wayland + Android — panel indicator",
+  "uuid": "gcontinuity@smrutiprakashrout.github.io",
+  "version": 1,
+  "shell-version": ["45", "46", "47"],
+  "url": "https://github.com/smrutiprakashrout/gcontinuity",
+  "settings-schema": ""
+}

@@ -1,6 +1,7 @@
 mod app;
-mod ui;
 mod dbus;
+mod pages;
+mod ui;
 
 use adw::prelude::*;
 use tracing_subscriber::EnvFilter;

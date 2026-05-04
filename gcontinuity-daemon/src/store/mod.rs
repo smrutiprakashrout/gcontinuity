@@ -1,3 +1,4 @@
+#![allow(dead_code)] // Phase 1 — reactivated in Phase 3
 use anyhow::Result;
 use gcontinuity_common::DeviceInfo;
 use sled::Db;
@@ -52,13 +53,11 @@ impl PeerStore {
 
     pub fn list_devices(&self) -> Result<Vec<DeviceInfo>> {
         let mut devices = Vec::new();
-        for result in self.db.iter() {
-            if let Ok((_k, v)) = result {
-                if let Ok(device) = serde_json::from_slice::<DeviceInfo>(&v) {
-                    devices.push(device);
-                } else {
-                    tracing::warn!("Failed to parse device entry in DB");
-                }
+        // .flatten() skips any IO errors — we log deserialization failures only.
+        for (_k, v) in self.db.iter().flatten() {
+            match serde_json::from_slice::<DeviceInfo>(&v) {
+                Ok(device) => devices.push(device),
+                Err(_) => tracing::warn!("Failed to parse device entry in DB"),
             }
         }
         Ok(devices)

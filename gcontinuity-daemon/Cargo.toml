@@ -3,6 +3,10 @@ name = "gcontinuity-daemon"
 version = "0.1.0"
 edition = "2021"
 
+[lib]
+name = "gcontinuity_daemon"
+path = "src/lib.rs"
+
 [[bin]]
 name = "gcontinuity-daemon"
 path = "src/main.rs"
@@ -11,10 +15,11 @@ path = "src/main.rs"
 gcontinuity-common = { path = "../gcontinuity-common" }
 
 # Async runtime
-tokio = { version = "1", features = ["full"] }
+tokio      = { version = "1", features = ["full"] }
+tokio-util = { version = "0.7", features = ["rt"] }
 
 # WebSocket + TLS
-tokio-tungstenite = { version = "0.23", features = ["rustls-tls-native-roots"] }
+tokio-tungstenite = { version = "0.23", features = ["rustls-tls-native-roots", "native-tls"] }
 rustls            = { version = "0.23", features = ["std", "ring"] }
 rustls-pemfile    = "2"
 tokio-rustls      = "0.26"
@@ -24,6 +29,8 @@ futures-util      = "0.3"
 rcgen  = { version = "0.13", default-features = false, features = ["pem", "ring"] }
 sha2   = "0.10"
 hex    = "0.4"
+# time is needed to set cert validity in rcgen 0.13
+time   = { version = "0.3", features = ["std"] }
 
 # mDNS
 zeroconf = "0.15"
@@ -31,12 +38,17 @@ zeroconf = "0.15"
 # D-Bus
 zbus = { version = "4", features = ["tokio"] }
 
+# WebRTC (LAN-only: no STUN/TURN, ICE-server list is empty)
+webrtc = "0.11"
+# bytes is a direct dep of webrtc; we declare it explicitly to use Bytes in data_channel
+bytes = "1"
+
 # Embedded DB
 sled = "0.34"
 
 # Config
-toml        = "0.8"
-dirs        = "5"
+toml = "0.8"
+dirs = "5"
 
 # Serialization
 serde      = { version = "1", features = ["derive"] }
@@ -50,3 +62,13 @@ anyhow    = "1"
 # Logging
 tracing            = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+[dev-dependencies]
+tokio-test  = "0.4"
+tempfile    = "3"
+portpicker  = "0.1"
+native-tls  = "0.2"
+bytes       = "1"
+hex         = "0.4"
+sha2        = "0.10"
+webrtc      = "0.11"
